@@ -1,6 +1,9 @@
 import pandas as pd
 
-from data_quality_toolkit.exporter import export_report_csv
+from data_quality_toolkit.exporter import (
+    export_report_csv,
+    export_report_excel,
+)
 from data_quality_toolkit.validator import ValidationResult
 from openpyxl import load_workbook
 
@@ -100,3 +103,36 @@ def test_export_report_excel_handles_valid_result(tmp_path):
 
     assert summary["B1"].value == "PASSED"
     assert issues.max_row == 1
+
+def test_excel_report_uses_polished_formatting(tmp_path):
+    result = ValidationResult(
+        missing_values={"email": [0]},
+    )
+
+    output_path = tmp_path / "reports" / "report.xlsx"
+
+    export_report_excel(
+        result,
+        output_path,
+    )
+
+    workbook = load_workbook(output_path)
+
+    summary = workbook["Summary"]
+    issues = workbook["Issues"]
+
+    assert output_path.exists()
+
+    assert summary.sheet_view.showGridLines is False
+    assert issues.sheet_view.showGridLines is False
+
+    assert summary["B1"].value == "FAILED"
+    assert summary["B1"].fill.fill_type == "solid"
+
+    assert issues.freeze_panes == "A2"
+    assert issues.auto_filter.ref is not None
+
+    assert issues["A1"].fill.fill_type == "solid"
+
+    if issues.max_row >= 2:
+        assert issues["A2"].fill.fill_type == "solid"

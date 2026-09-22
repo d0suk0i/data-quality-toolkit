@@ -3,10 +3,34 @@ from pathlib import Path
 import pandas as pd
 
 from data_quality_toolkit.validator import ValidationResult
-from openpyxl.styles import Font
+from openpyxl.styles import Font, PatternFill
 from openpyxl.utils import get_column_letter
 from data_quality_toolkit.utils import source_row_number
 
+HEADER_FILL = PatternFill(
+    fill_type="solid",
+    fgColor="FF44546A",
+)
+
+HEADER_FONT = Font(
+    bold=True,
+    color="FFFFFFFF",
+)
+
+ZEBRA_FILL = PatternFill(
+    fill_type="solid",
+    fgColor="FFEEF2F6",
+)
+
+FAILED_FILL = PatternFill(
+    fill_type="solid",
+    fgColor="FFF4CCCC",
+)
+
+PASSED_FILL = PatternFill(
+    fill_type="solid",
+    fgColor="FFE2F0D9",
+)
 
 REPORT_COLUMNS = [
     "issue_type",
@@ -98,6 +122,11 @@ def export_report_csv(
     """
     path = Path(output_path)
 
+    path.parent.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
     records = build_report_records(result)
 
     report = pd.DataFrame(
@@ -126,6 +155,11 @@ def export_report_excel(
         output_path: Destination Excel file.
     """
     path = Path(output_path)
+
+    path.parent.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
 
     records = build_report_records(result)
 
@@ -191,18 +225,57 @@ def export_report_excel(
         summary_sheet = workbook["Summary"]
         issues_sheet = workbook["Issues"]
 
+        # -------------------------
+        # Summary sheet formatting
+        # -------------------------
+
+        summary_sheet.sheet_view.showGridLines = False
+
         for cell in summary_sheet["A"]:
             cell.font = Font(bold=True)
+
+        summary_sheet["A1"].fill = HEADER_FILL
+        summary_sheet["A1"].font = HEADER_FONT
+
+        status_cell = summary_sheet["B1"]
+        status_cell.font = Font(bold=True)
+
+        if result.is_valid:
+            status_cell.fill = PASSED_FILL
+        else:
+            status_cell.fill = FAILED_FILL
 
         summary_sheet.column_dimensions["A"].width = 24
         summary_sheet.column_dimensions["B"].width = 16
 
-        for cell in issues_sheet[1]:
-            cell.font = Font(bold=True)
+        # ------------------------
+        # Issues sheet formatting
+        # ------------------------
 
+        issues_sheet.sheet_view.showGridLines = False
         issues_sheet.freeze_panes = "A2"
         issues_sheet.auto_filter.ref = issues_sheet.dimensions
 
+        for cell in issues_sheet[1]:
+            cell.fill = HEADER_FILL
+            cell.font = HEADER_FONT
+
+        # Zebra striping.
+        for row_number in range(
+            2,
+            issues_sheet.max_row + 1,
+        ):
+            if row_number % 2 == 0:
+                for column_number in range(
+                    1,
+                    issues_sheet.max_column + 1,
+                ):
+                    issues_sheet.cell(
+                        row=row_number,
+                        column=column_number,
+                    ).fill = ZEBRA_FILL
+
+        # Automatic column widths.
         for column_cells in issues_sheet.columns:
             max_length = 0
 
@@ -219,4 +292,7 @@ def export_report_excel(
 
             issues_sheet.column_dimensions[
                 column_letter
-            ].width = min(max_length + 2, 50)
+            ].width = min(
+                max(max_length + 5, 12),
+                50,
+            )

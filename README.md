@@ -1,65 +1,32 @@
 # Data Quality Toolkit
 
-A Python command-line tool for validating CSV and Excel datasets against configurable data-quality rules.
+A lightweight Python tool for validating CSV and Excel datasets using reusable YAML rules.
 
-The toolkit can detect common data problems such as missing columns, missing values, duplicate records, unexpected columns, and invalid categorical values.
-
-Validation rules can be supplied through command-line arguments or reusable YAML configuration files.
+Data Quality Toolkit is designed for practical spreadsheet and operational data QA. It can identify common data-quality issues, generate structured reports, and create annotated Excel workbooks that visually highlight problems.
 
 ## Features
 
-- Load CSV and Excel (`.xlsx`) files
-- Detect missing required columns
-- Detect unexpected columns
-- Detect missing values
-- Detect duplicate rows
-- Detect duplicates using selected key columns
-- Validate values against allowed-value lists
-- Configure validation rules using YAML
-- Generate readable terminal reports
-- Export validation results to CSV
-- Export formatted Excel QA reports
-- Return meaningful CLI exit codes
-- Validate configuration structure
-- Automated test suite with `pytest`
-
-## Export Reports
-
-Export validation issues to CSV:
-
-```bash
-python -m data_quality_toolkit.cli samples/sample_jobs.csv \
-  --config config/job_rules.yaml \
-  --output validation_report.csv
-```
-
-Export a formatted Excel workbook:
-
-```bash
-python -m data_quality_toolkit.cli samples/sample_jobs.csv \
-  --config config/job_rules.yaml \
-  --output validation_report.xlsx
-```
-
-Excel reports contain:
-
-- `Summary` sheet with validation status and issue counts
-- `Issues` sheet with individual validation problems
-
-## Exit Codes
-
-The command-line interface returns:
-
-- `0` — validation completed and no issues were found
-- `1` — validation completed and data-quality issues were found
-- `2` — the command could not complete because of invalid input, configuration, or file errors
-
-## Requirements
-
-- Python 3.10+
-- pandas
-- openpyxl
-- PyYAML
+- CSV and Excel (`.xlsx`) input
+- Required-column validation
+- Unexpected-column detection
+- Missing-value detection
+- Duplicate-row detection
+- Duplicate detection using selected key columns
+- Allowed-value validation
+- YAML-based validation rules
+- Human-readable terminal reports
+- CSV issue reports
+- Formatted Excel QA reports
+- Annotated Excel workbook copies
+- Source-file row numbers in reports
+- Highlighted problem cells and rows
+- Comments explaining validation issues
+- Zebra-striped reviewed spreadsheets
+- Frozen headers and filters
+- Automatic column sizing
+- Validation legend sheet
+- Meaningful CLI exit codes
+- Automated pytest test suite
 
 ## Installation
 
@@ -82,35 +49,49 @@ Activate it on Windows:
 .\.venv\Scripts\Activate.ps1
 ```
 
-Install runtime dependencies:
+Install the application:
 
 ```bash
-pip install -r requirements.txt
+pip install -e .
 ```
 
 For development and testing:
 
 ```bash
-pip install -r requirements-dev.txt
+pip install -e ".[dev]"
 ```
 
-## Basic Usage
+## Command-Line Interface
+
+After installation:
+
+```bash
+data-quality --help
+```
+
+Check the installed version:
+
+```bash
+data-quality --version
+```
+
+## Basic Validation
 
 Validate required columns:
 
 ```bash
-python -m data_quality_toolkit.cli data.csv --required id name email
+data-quality data.csv --required id name email
 ```
 
-Check duplicates using an ID column:
+Check duplicates using an ID:
 
 ```bash
-python -m data_quality_toolkit.cli data.csv --required id name --duplicate-key id
+data-quality data.csv --required id name --duplicate-key id
 ```
 
 ## YAML Configuration
 
-Validation rules can also be stored in a YAML file.
+Reusable validation rules can be stored in YAML.
 
 Example:
 
@@ -137,26 +118,78 @@ allowed_values:
     - contract
 ```
 
-Run validation using the configuration:
+Run:
 
 ```bash
-python -m data_quality_toolkit.cli samples/sample_jobs.csv --config config/job_rules.yaml
+data-quality samples/sample_jobs.xlsx --config config/job_rules.yaml
 ```
 
-## Example Output
+## Report Export
 
-```text
-Validation failed:
-Missing values in 'email': rows 2
-Duplicate rows: 3
-Invalid values in 'employment_type': rows 3
+Export issues to CSV:
+
+```bash
+data-quality samples/sample_jobs.xlsx \
+  --config config/job_rules.yaml \
+  --output validation_report.csv
 ```
 
-A valid dataset produces:
+Export a formatted Excel QA report:
 
-```text
-Validation passed: no issues found.
+```bash
+data-quality samples/sample_jobs.xlsx \
+  --config config/job_rules.yaml \
+  --output validation_report.xlsx
 ```
+
+The Excel report contains:
+
+- `Summary` — validation status and issue counts
+- `Issues` — individual problems with source-file row numbers
+
+## Annotated Excel Workbooks
+
+For Excel input files, Data Quality Toolkit can create a reviewed copy of the original workbook:
+
+```bash
+data-quality samples/sample_jobs.xlsx \
+  --config config/job_rules.yaml \
+  --annotated-output reviewed_sample_jobs.xlsx
+```
+
+The reviewed workbook includes:
+
+- highlighted missing values
+- highlighted invalid values
+- highlighted duplicate rows
+- highlighted unexpected columns
+- comments explaining individual issues
+- alternating row shading
+- frozen headers
+- autofilters
+- automatic column sizing
+- a legend explaining validation colors
+
+Specific cell-level issues take priority over row-level highlighting, so multiple problems can remain visible on the same record.
+
+## Combined Example
+
+```bash
+data-quality samples/sample_jobs.xlsx \
+  --config config/job_rules.yaml \
+  --output validation_report.xlsx \
+  --annotated-output reviewed_sample_jobs.xlsx
+```
+
+This validates the source data, prints the result to the terminal, creates a structured QA report, and produces an annotated review workbook.
+
+## Exit Codes
+
+- `0` — validation completed with no issues
+- `1` — validation completed and data-quality issues were found
+- `2` — validation could not complete because of invalid input, configuration, or file errors
+
+This makes the tool suitable for use in scripts and automated workflows.
 
 ## Project Structure
 
@@ -165,48 +198,42 @@ data-quality-toolkit/
 ├── config/
 │   └── job_rules.yaml
 ├── samples/
-│   └── sample_jobs.csv
+│   ├── sample_jobs.csv
+│   └── sample_jobs.xlsx
 ├── src/
 │   └── data_quality_toolkit/
 │       ├── __init__.py
+│       ├── __main__.py
+│       ├── annotator.py
 │       ├── cli.py
 │       ├── config.py
+│       ├── exporter.py
 │       ├── loader.py
 │       ├── report.py
+│       ├── utils.py
 │       └── validator.py
 ├── tests/
-│   ├── test_cli.py
-│   ├── test_config.py
-│   ├── test_loader.py
-│   ├── test_report.py
-│   └── test_validator.py
-├── requirements.txt
-├── requirements-dev.txt
+├── LICENSE
+├── pyproject.toml
 └── README.md
 ```
 
 ## Testing
 
-Run the complete test suite:
+Run the full test suite:
 
 ```bash
 python -m pytest -v
 ```
 
-## Current Status
+## Current Version
 
-The current version provides the core validation engine and command-line interface.
+**1.0.0**
 
-Planned improvements include:
+The initial release focuses on practical CSV and Excel data-quality validation for local business and operational workflows.
 
-- Exportable validation reports
-- Excel-formatted QA reports
-- Additional validation rules
-- Better configuration validation
-- Batch file processing
-- Summary statistics
-- Improved CLI error handling
+Potential future improvements include batch processing, additional validation rules, multi-sheet validation, and graphical interfaces.
 
 ## License
 
-This project is intended as a portfolio and learning project.
+MIT License
