@@ -1,11 +1,13 @@
 import pandas as pd
 
 from src.data_quality_toolkit.validator import (
-    find_missing_columns,
-    find_missing_values,
+    ValidationResult,
     find_duplicate_rows,
     find_invalid_values,
+    find_missing_columns,
+    find_missing_values,
     find_unexpected_columns,
+    validate_data,
 )
 
 
@@ -219,3 +221,61 @@ def test_find_unexpected_columns_returns_empty_list_when_schema_matches():
     result = find_unexpected_columns(data, expected_columns)
 
     assert result == []
+
+def test_validation_result_is_valid_when_no_errors():
+    result = ValidationResult()
+
+    assert result.is_valid is True
+
+
+def test_validation_result_is_invalid_when_errors_exist():
+    result = ValidationResult(
+        missing_columns=["email"]
+    )
+
+    assert result.is_valid is False
+
+
+def test_validate_data_combines_validation_results():
+    data = pd.DataFrame(
+        {
+            "name": ["Alice", "Bob", None],
+            "employment_type": [
+                "full-time",
+                "temporary",
+                "contract",
+            ],
+            "extra_column": [1, 2, 3],
+        }
+    )
+
+    result = validate_data(
+        data=data,
+        expected_columns=[
+            "name",
+            "employment_type",
+            "email",
+        ],
+        required_columns=[
+            "name",
+            "employment_type",
+            "email",
+        ],
+        allowed_values={
+            "employment_type": [
+                "full-time",
+                "part-time",
+                "contract",
+            ]
+        },
+    )
+
+    assert result.missing_columns == ["email"]
+    assert result.unexpected_columns == ["extra_column"]
+    assert result.missing_values == {
+        "name": [2]
+    }
+    assert result.invalid_values == {
+        "employment_type": [1]
+    }
+    assert result.is_valid is False

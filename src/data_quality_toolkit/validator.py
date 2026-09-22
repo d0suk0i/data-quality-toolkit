@@ -1,5 +1,26 @@
 import pandas as pd
 
+from dataclasses import dataclass, field
+
+@dataclass
+class ValidationResult:
+    missing_columns: list[str] = field(default_factory=list)
+    unexpected_columns: list[str] = field(default_factory=list)
+    missing_values: dict[str, list[int]] = field(default_factory=dict)
+    duplicate_rows: list[int] = field(default_factory=list)
+    invalid_values: dict[str, list[int]] = field(default_factory=dict)
+
+    @property
+    def is_valid(self) -> bool:
+        return not any(
+            [
+                self.missing_columns,
+                self.unexpected_columns,
+                self.missing_values,
+                self.duplicate_rows,
+                self.invalid_values,
+            ]
+        )
 
 def find_missing_columns(
     data: pd.DataFrame,
@@ -118,3 +139,56 @@ def find_unexpected_columns(
         for column in data.columns
         if column not in expected_columns
     ]
+
+def validate_data(
+    data: pd.DataFrame,
+    expected_columns: list[str],
+    required_columns: list[str],
+    allowed_values: dict[str, list] | None = None,
+    duplicate_subset: list[str] | None = None,
+) -> ValidationResult:
+    """
+    Run multiple validation checks against a DataFrame.
+
+    Args:
+        data: DataFrame to validate.
+        expected_columns: Columns allowed by the schema.
+        required_columns: Columns that must exist and contain values.
+        allowed_values: Optional mapping of columns to permitted values.
+        duplicate_subset: Optional columns used for duplicate detection.
+
+    Returns:
+        ValidationResult containing all detected issues.
+    """
+    invalid_values = {}
+
+    if allowed_values:
+        for column, values in allowed_values.items():
+            invalid_rows = find_invalid_values(
+                data=data,
+                column=column,
+                allowed_values=values,
+            )
+
+            if invalid_rows:
+                invalid_values[column] = invalid_rows
+
+    return ValidationResult(
+        missing_columns=find_missing_columns(
+            data,
+            required_columns,
+        ),
+        unexpected_columns=find_unexpected_columns(
+            data,
+            expected_columns,
+        ),
+        missing_values=find_missing_values(
+            data,
+            required_columns,
+        ),
+        duplicate_rows=find_duplicate_rows(
+            data,
+            subset=duplicate_subset,
+        ),
+        invalid_values=invalid_values,
+    )
