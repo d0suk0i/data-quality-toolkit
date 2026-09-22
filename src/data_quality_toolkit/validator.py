@@ -98,3 +98,23 @@ def find_invalid_values(
     )
 
     return data.index[invalid_mask].tolist()
+
+def find_unexpected_columns(
+    data: pd.DataFrame,
+    expected_columns: list[str],
+) -> list[str]:
+    """
+    Return columns that exist in the DataFrame but are not expected.
+
+    Args:
+        data: DataFrame to validate.
+        expected_columns: Column names allowed by the schema.
+
+    Returns:
+        A list of unexpected column names.
+    """
+    return [
+        column
+        for column in data.columns
+        if column not in expected_columns
+    ]

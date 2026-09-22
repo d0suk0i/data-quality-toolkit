@@ -5,6 +5,7 @@ from src.data_quality_toolkit.validator import (
     find_missing_values,
     find_duplicate_rows,
     find_invalid_values,
+    find_unexpected_columns,
 )
 
 
@@ -186,5 +187,35 @@ def test_find_invalid_values_ignores_missing_values():
         column="employment_type",
         allowed_values=allowed_values,
     )
+
+    assert result == []
+
+def test_find_unexpected_columns_returns_extra_columns():
+    data = pd.DataFrame(
+        {
+            "name": ["Alice", "Bob"],
+            "age": [30, 40],
+            "notes": ["A", "B"],
+        }
+    )
+
+    expected_columns = ["name", "age"]
+
+    result = find_unexpected_columns(data, expected_columns)
+
+    assert result == ["notes"]
+
+
+def test_find_unexpected_columns_returns_empty_list_when_schema_matches():
+    data = pd.DataFrame(
+        {
+            "name": ["Alice", "Bob"],
+            "age": [30, 40],
+        }
+    )
+
+    expected_columns = ["name", "age"]
+
+    result = find_unexpected_columns(data, expected_columns)
 
     assert result == []
