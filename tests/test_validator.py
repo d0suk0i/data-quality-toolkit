@@ -4,6 +4,7 @@ from src.data_quality_toolkit.validator import (
     find_missing_columns,
     find_missing_values,
     find_duplicate_rows,
+    find_invalid_values,
 )
 
 
@@ -107,5 +108,83 @@ def test_find_duplicate_rows_returns_empty_list_when_unique():
     )
 
     result = find_duplicate_rows(data)
+
+    assert result == []
+
+def test_find_invalid_values_returns_invalid_rows():
+    data = pd.DataFrame(
+        {
+            "employment_type": [
+                "full-time",
+                "part-time",
+                "temporary",
+                "contract",
+            ]
+        }
+    )
+
+    allowed_values = [
+        "full-time",
+        "part-time",
+        "contract",
+    ]
+
+    result = find_invalid_values(
+        data,
+        column="employment_type",
+        allowed_values=allowed_values,
+    )
+
+    assert result == [2]
+
+
+def test_find_invalid_values_returns_empty_list_when_valid():
+    data = pd.DataFrame(
+        {
+            "employment_type": [
+                "full-time",
+                "part-time",
+                "contract",
+            ]
+        }
+    )
+
+    allowed_values = [
+        "full-time",
+        "part-time",
+        "contract",
+    ]
+
+    result = find_invalid_values(
+        data,
+        column="employment_type",
+        allowed_values=allowed_values,
+    )
+
+    assert result == []
+
+
+def test_find_invalid_values_ignores_missing_values():
+    data = pd.DataFrame(
+        {
+            "employment_type": [
+                "full-time",
+                None,
+                "contract",
+            ]
+        }
+    )
+
+    allowed_values = [
+        "full-time",
+        "part-time",
+        "contract",
+    ]
+
+    result = find_invalid_values(
+        data,
+        column="employment_type",
+        allowed_values=allowed_values,
+    )
 
     assert result == []

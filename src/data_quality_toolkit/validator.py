@@ -69,3 +69,32 @@ def find_duplicate_rows(
     )
 
     return data.index[duplicate_mask].tolist()
+
+def find_invalid_values(
+    data: pd.DataFrame,
+    column: str,
+    allowed_values: list,
+) -> list[int]:
+    """
+    Find rows containing values that are not allowed.
+
+    Missing values are ignored because they are handled separately
+    by missing-value validation.
+
+    Args:
+        data: DataFrame to validate.
+        column: Column to check.
+        allowed_values: Values permitted in the column.
+
+    Returns:
+        A list of row indexes containing invalid values.
+    """
+    if column not in data.columns:
+        return []
+
+    invalid_mask = (
+        data[column].notna()
+        & ~data[column].isin(allowed_values)
+    )
+
+    return data.index[invalid_mask].tolist()
