@@ -48,3 +48,24 @@ def find_missing_values(
             missing_values[column] = missing_rows
 
     return missing_values
+
+def find_duplicate_rows(
+    data: pd.DataFrame,
+    subset: list[str] | None = None,
+) -> list[int]:
+    """
+    Find duplicate rows in a DataFrame.
+
+    Args:
+        data: DataFrame to validate.
+        subset: Optional list of columns used to determine duplicates.
+
+    Returns:
+        A list of row indexes that are duplicates of earlier rows.
+    """
+    duplicate_mask = data.duplicated(
+        subset=subset,
+        keep="first",
+    )
+
+    return data.index[duplicate_mask].tolist()
