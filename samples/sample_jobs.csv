@@ -1,0 +1,5 @@
+id,name,email,employment_type
+101,Alice,alice@example.com,full-time
+102,Bob,bob@example.com,part-time
+103,Charlie,,contract
+103,Charlie,charlie@example.com,temporary
