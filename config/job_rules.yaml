@@ -1,0 +1,20 @@
+required_columns:
+  - id
+  - name
+  - email
+  - employment_type
+
+expected_columns:
+  - id
+  - name
+  - email
+  - employment_type
+
+duplicate_subset:
+  - id
+
+allowed_values:
+  employment_type:
+    - full-time
+    - part-time
+    - contract

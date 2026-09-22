@@ -3,6 +3,7 @@ import argparse
 from src.data_quality_toolkit.loader import load_data_file
 from src.data_quality_toolkit.report import format_validation_report
 from src.data_quality_toolkit.validator import validate_data
+from src.data_quality_toolkit.config import load_validation_config
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -37,6 +38,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="Columns used to identify duplicate rows.",
     )
 
+    parser.add_argument(
+        "--config",
+        help="Path to a YAML validation configuration file.",
+    )
+
     return parser
 
 
@@ -56,17 +62,39 @@ def main(argv: list[str] | None = None) -> int:
 
     data = load_data_file(args.file)
 
-    expected_columns = (
-        args.expected
-        if args.expected is not None
-        else list(data.columns)
+    config = {}
+
+    if args.config:
+        config = load_validation_config(args.config)
+
+    required_columns = config.get(
+        "required_columns",
+        args.required,
+    )
+
+    expected_columns = config.get(
+        "expected_columns",
+        args.expected,
+    )
+
+    if expected_columns is None:
+        expected_columns = list(data.columns)
+
+    duplicate_subset = config.get(
+        "duplicate_subset",
+        args.duplicate_key,
+    )
+
+    allowed_values = config.get(
+        "allowed_values",
     )
 
     result = validate_data(
         data=data,
         expected_columns=expected_columns,
-        required_columns=args.required,
-        duplicate_subset=args.duplicate_key,
+        required_columns=required_columns,
+        allowed_values=allowed_values,
+        duplicate_subset=duplicate_subset,
     )
 
     print(format_validation_report(result))
