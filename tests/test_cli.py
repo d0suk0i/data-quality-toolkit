@@ -1,6 +1,7 @@
 import pandas as pd
 
 from src.data_quality_toolkit.cli import main
+from openpyxl import Workbook, load_workbook
 
 
 def test_cli_returns_success_for_valid_file(tmp_path, capsys):
@@ -288,3 +289,47 @@ required_columns: name
     assert exit_code == 2
     assert "Error:" in output
     assert "required_columns must be a list" in output
+
+def test_cli_creates_annotated_workbook(tmp_path):
+    source_file = tmp_path / "source.xlsx"
+    reviewed_file = tmp_path / "reviewed.xlsx"
+
+    workbook = Workbook()
+    sheet = workbook.active
+
+    sheet.append(
+        [
+            "id",
+            "name",
+            "email",
+        ]
+    )
+
+    sheet.append(
+        [
+            101,
+            "Alice",
+            None,
+        ]
+    )
+
+    workbook.save(source_file)
+
+    exit_code = main(
+        [
+            str(source_file),
+            "--required",
+            "id",
+            "name",
+            "email",
+            "--annotated-output",
+            str(reviewed_file),
+        ]
+    )
+
+    reviewed = load_workbook(reviewed_file)
+    sheet = reviewed.active
+
+    assert exit_code == 1
+    assert reviewed_file.exists()
+    assert sheet["C2"].fill.fill_type == "solid"

@@ -9,6 +9,7 @@ from src.data_quality_toolkit.exporter import (
     export_report_excel,
 )
 from pathlib import Path
+from src.data_quality_toolkit.annotator import annotate_workbook
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -52,6 +53,14 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--output",
         help="Optional path for exporting the validation report as CSV.",
+    )
+
+    parser.add_argument(
+        "--annotated-output",
+        help=(
+            "Optional path for creating an annotated copy "
+            "of an XLSX input workbook."
+        ),
     )
 
     return parser
@@ -135,11 +144,40 @@ def main(argv: list[str] | None = None) -> int:
 
             print(f"Report saved to: {output_path}")
 
+        if args.annotated_output:
+            input_path = Path(args.file)
+            annotated_path = Path(args.annotated_output)
+
+            if input_path.suffix.lower() != ".xlsx":
+                print(
+                    "Error: Annotated workbook output requires "
+                    "an .xlsx input file."
+                )
+                return 2
+
+            if annotated_path.suffix.lower() != ".xlsx":
+                print(
+                    "Error: Annotated workbook output must use "
+                    "the .xlsx extension."
+                )
+                return 2
+
+            annotate_workbook(
+                input_path=input_path,
+                result=result,
+                output_path=annotated_path,
+            )
+
+            print(
+                f"Annotated workbook saved to: "
+                f"{annotated_path}"
+            )
+
         return 0 if result.is_valid else 1
 
     except (FileNotFoundError, ValueError) as error:
         print(f"Error: {error}")
         return 2
 
-if __name__ == "__main__":
-    raise SystemExit(main())
+    if __name__ == "__main__":
+        raise SystemExit(main())
