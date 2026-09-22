@@ -16,9 +16,43 @@ Validation rules can be supplied through command-line arguments or reusable YAML
 - Detect duplicates using selected key columns
 - Validate values against allowed-value lists
 - Configure validation rules using YAML
-- Generate readable validation reports
+- Generate readable terminal reports
+- Export validation results to CSV
+- Export formatted Excel QA reports
 - Return meaningful CLI exit codes
+- Validate configuration structure
 - Automated test suite with `pytest`
+
+## Export Reports
+
+Export validation issues to CSV:
+
+```bash
+python -m src.data_quality_toolkit.cli samples/sample_jobs.csv \
+  --config config/job_rules.yaml \
+  --output validation_report.csv
+```
+
+Export a formatted Excel workbook:
+
+```bash
+python -m src.data_quality_toolkit.cli samples/sample_jobs.csv \
+  --config config/job_rules.yaml \
+  --output validation_report.xlsx
+```
+
+Excel reports contain:
+
+- `Summary` sheet with validation status and issue counts
+- `Issues` sheet with individual validation problems
+
+## Exit Codes
+
+The command-line interface returns:
+
+- `0` — validation completed and no issues were found
+- `1` — validation completed and data-quality issues were found
+- `2` — the command could not complete because of invalid input, configuration, or file errors
 
 ## Requirements
 

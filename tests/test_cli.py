@@ -104,8 +104,8 @@ allowed_values:
     output = capsys.readouterr().out
 
     assert exit_code == 1
-    assert "Duplicate rows: 1" in output
-    assert "Invalid values in 'employment_type': rows 1" in output
+    assert "Duplicate rows: 3" in output
+    assert "Invalid values in 'employment_type': rows 3" in output
 
 
 def test_cli_config_passes_valid_data(tmp_path, capsys):

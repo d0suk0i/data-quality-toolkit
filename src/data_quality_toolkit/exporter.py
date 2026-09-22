@@ -5,12 +5,13 @@ import pandas as pd
 from src.data_quality_toolkit.validator import ValidationResult
 from openpyxl.styles import Font
 from openpyxl.utils import get_column_letter
+from src.data_quality_toolkit.utils import source_row_number
 
 
 REPORT_COLUMNS = [
     "issue_type",
     "column",
-    "row",
+    "source_row",
     "details",
 ]
 
@@ -34,7 +35,7 @@ def build_report_records(
             {
                 "issue_type": "missing_column",
                 "column": column,
-                "row": None,
+                "source_row": None,
                 "details": "Required column is missing.",
             }
         )
@@ -44,7 +45,7 @@ def build_report_records(
             {
                 "issue_type": "unexpected_column",
                 "column": column,
-                "row": None,
+                "source_row": None,
                 "details": "Column is not part of the expected schema.",
             }
         )
@@ -55,7 +56,7 @@ def build_report_records(
                 {
                     "issue_type": "missing_value",
                     "column": column,
-                    "row": row,
+                    "source_row": source_row_number(row),
                     "details": "Required value is missing.",
                 }
             )
@@ -65,7 +66,7 @@ def build_report_records(
             {
                 "issue_type": "duplicate_row",
                 "column": None,
-                "row": row,
+                "source_row": source_row_number(row),
                 "details": "Duplicate record detected.",
             }
         )
@@ -76,7 +77,7 @@ def build_report_records(
                 {
                     "issue_type": "invalid_value",
                     "column": column,
-                    "row": row,
+                    "source_row": source_row_number(row),
                     "details": "Value is not permitted by the validation rules.",
                 }
             )

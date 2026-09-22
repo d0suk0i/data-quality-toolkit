@@ -23,7 +23,7 @@ def test_export_report_csv_creates_report(tmp_path):
     assert list(report.columns) == [
         "issue_type",
         "column",
-        "row",
+        "source_row",
         "details",
     ]
 
@@ -49,7 +49,7 @@ def test_export_report_csv_handles_valid_result(tmp_path):
     assert list(report.columns) == [
         "issue_type",
         "column",
-        "row",
+        "source_row",
         "details",
     ]
 
@@ -80,7 +80,7 @@ def test_export_report_excel_creates_summary_and_issues_sheets(tmp_path):
 
     assert issues["A1"].value == "issue_type"
     assert issues["B1"].value == "column"
-    assert issues["C1"].value == "row"
+    assert issues["C1"].value == "source_row"
     assert issues["D1"].value == "details"
 
 

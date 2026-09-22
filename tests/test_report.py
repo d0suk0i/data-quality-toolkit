@@ -27,6 +27,6 @@ def test_format_validation_report_lists_errors():
 
     assert "Missing columns: email" in report
     assert "Unexpected columns: notes" in report
-    assert "Missing values in 'name': rows 2" in report
-    assert "Duplicate rows: 4" in report
-    assert "Invalid values in 'employment_type': rows 1, 3" in report
+    assert "Missing values in 'name': rows 4" in report
+    assert "Duplicate rows: 6" in report
+    assert "Invalid values in 'employment_type': rows 3, 5" in report
