@@ -285,6 +285,7 @@ def test_annotated_workbook_polish(tmp_path):
 
     # Zebra shading exists on an ordinary row.
     assert sheet["A2"].fill.fill_type == "solid"
+    assert sheet["A2"].fill.fgColor.rgb == "FFEEF2F6"
 
     # Missing value is highlighted and explained.
     assert sheet["C3"].fill.fill_type == "solid"

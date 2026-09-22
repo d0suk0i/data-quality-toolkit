@@ -33,7 +33,7 @@ UNEXPECTED_COLUMN_FILL = PatternFill(
 
 ZEBRA_FILL = PatternFill(
     fill_type="solid",
-    fgColor="FFF7F7F7",
+    fgColor="FFEEF2F6",
 )
 
 HEADER_FILL = PatternFill(
@@ -123,6 +123,8 @@ def style_source_worksheet(worksheet) -> None:
             50,
         )
 
+        worksheet.sheet_view.showGridLines = False
+
 
 def add_legend_sheet(workbook) -> None:
     """
@@ -181,6 +183,8 @@ def add_legend_sheet(workbook) -> None:
     legend.column_dimensions["B"].width = 30
 
     legend.freeze_panes = "A2"
+
+    legend.sheet_view.showGridLines = False
 
 
 def annotate_workbook(
