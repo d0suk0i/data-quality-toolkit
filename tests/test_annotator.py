@@ -199,3 +199,111 @@ def test_specific_cell_issue_overrides_duplicate_row_fill(tmp_path):
     assert duplicate_fill != invalid_fill
     assert sheet["A3"].fill.fill_type == "solid"
     assert sheet["B3"].fill.fill_type == "solid"
+
+def test_annotated_workbook_polish(tmp_path):
+    source_path = tmp_path / "source.xlsx"
+    output_path = tmp_path / "reviewed.xlsx"
+
+    workbook = Workbook()
+    sheet = workbook.active
+
+    sheet.append(
+        [
+            "id",
+            "name",
+            "email",
+            "employment_type",
+            "extra",
+        ]
+    )
+
+    sheet.append(
+        [
+            101,
+            "Alice",
+            "alice@example.com",
+            "full-time",
+            "A",
+        ]
+    )
+
+    sheet.append(
+        [
+            102,
+            "Bob",
+            None,
+            "part-time",
+            "B",
+        ]
+    )
+
+    sheet.append(
+        [
+            103,
+            "Charlie",
+            "charlie@example.com",
+            "contract",
+            "C",
+        ]
+    )
+
+    sheet.append(
+        [
+            103,
+            "Charlie",
+            "charlie@example.com",
+            "temporary",
+            "D",
+        ]
+    )
+
+    workbook.save(source_path)
+
+    result = ValidationResult(
+        unexpected_columns=["extra"],
+        missing_values={
+            "email": [1],
+        },
+        duplicate_rows=[3],
+        invalid_values={
+            "employment_type": [3],
+        },
+    )
+
+    annotate_workbook(
+        input_path=source_path,
+        result=result,
+        output_path=output_path,
+    )
+
+    reviewed = load_workbook(output_path)
+    sheet = reviewed.active
+
+    # Readability features.
+    assert sheet.freeze_panes == "A2"
+    assert sheet.auto_filter.ref is not None
+
+    # Zebra shading exists on an ordinary row.
+    assert sheet["A2"].fill.fill_type == "solid"
+
+    # Missing value is highlighted and explained.
+    assert sheet["C3"].fill.fill_type == "solid"
+    assert sheet["C3"].comment is not None
+    assert "Missing required value" in sheet["C3"].comment.text
+
+    # Duplicate row is highlighted.
+    assert sheet["A5"].fill.fill_type == "solid"
+    assert sheet["A5"].comment is not None
+    assert "Duplicate record" in sheet["A5"].comment.text
+
+    # Invalid cell overrides duplicate-row shading.
+    assert sheet["D5"].fill.fgColor.rgb != sheet["A5"].fill.fgColor.rgb
+    assert sheet["D5"].comment is not None
+    assert "temporary" in sheet["D5"].comment.text
+
+    # Unexpected header is highlighted and explained.
+    assert sheet["E1"].comment is not None
+    assert "Unexpected column" in sheet["E1"].comment.text
+
+    # Legend remains present.
+    assert "Legend" in reviewed.sheetnames
