@@ -32,7 +32,7 @@ Validation rules can be supplied through command-line arguments or reusable YAML
 Clone the repository:
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/d0suk0i/data-quality-toolkit.git
 cd data-quality-toolkit
 ```
 
