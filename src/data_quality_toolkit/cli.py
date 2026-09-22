@@ -4,6 +4,7 @@ from src.data_quality_toolkit.loader import load_data_file
 from src.data_quality_toolkit.report import format_validation_report
 from src.data_quality_toolkit.validator import validate_data
 from src.data_quality_toolkit.config import load_validation_config
+from src.data_quality_toolkit.exporter import export_report_csv
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -41,6 +42,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--config",
         help="Path to a YAML validation configuration file.",
+
+    )
+
+    parser.add_argument(
+        "--output",
+        help="Optional path for exporting the validation report as CSV.",
     )
 
     return parser
@@ -98,6 +105,14 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     print(format_validation_report(result))
+
+    if args.output:
+        export_report_csv(
+            result=result,
+            output_path=args.output,
+        )
+
+        print(f"Report saved to: {args.output}")
 
     return 0 if result.is_valid else 1
 

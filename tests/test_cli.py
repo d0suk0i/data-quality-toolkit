@@ -154,3 +154,33 @@ allowed_values:
 
     assert exit_code == 0
     assert "Validation passed" in output
+
+def test_cli_exports_csv_report(tmp_path):
+    data = pd.DataFrame(
+        {
+            "name": ["Alice", "Bob"],
+        }
+    )
+
+    data_file = tmp_path / "data.csv"
+    data.to_csv(data_file, index=False)
+
+    output_file = tmp_path / "report.csv"
+
+    exit_code = main(
+        [
+            str(data_file),
+            "--required",
+            "name",
+            "email",
+            "--output",
+            str(output_file),
+        ]
+    )
+
+    report = pd.read_csv(output_file)
+
+    assert exit_code == 1
+    assert output_file.exists()
+    assert "missing_column" in report["issue_type"].values
+    assert "email" in report["column"].values
