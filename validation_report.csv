@@ -1,0 +1,4 @@
+issue_type,column,row,details
+missing_value,email,2,Required value is missing.
+duplicate_row,,3,Duplicate record detected.
+invalid_value,employment_type,3,Value is not permitted by the validation rules.

@@ -184,3 +184,36 @@ def test_cli_exports_csv_report(tmp_path):
     assert output_file.exists()
     assert "missing_column" in report["issue_type"].values
     assert "email" in report["column"].values
+
+from openpyxl import load_workbook
+
+
+def test_cli_exports_excel_report(tmp_path):
+    data = pd.DataFrame(
+        {
+            "name": ["Alice", "Bob"],
+        }
+    )
+
+    data_file = tmp_path / "data.csv"
+    data.to_csv(data_file, index=False)
+
+    output_file = tmp_path / "report.xlsx"
+
+    exit_code = main(
+        [
+            str(data_file),
+            "--required",
+            "name",
+            "email",
+            "--output",
+            str(output_file),
+        ]
+    )
+
+    workbook = load_workbook(output_file)
+
+    assert exit_code == 1
+    assert output_file.exists()
+    assert "Summary" in workbook.sheetnames
+    assert "Issues" in workbook.sheetnames

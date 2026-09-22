@@ -4,7 +4,11 @@ from src.data_quality_toolkit.loader import load_data_file
 from src.data_quality_toolkit.report import format_validation_report
 from src.data_quality_toolkit.validator import validate_data
 from src.data_quality_toolkit.config import load_validation_config
-from src.data_quality_toolkit.exporter import export_report_csv
+from src.data_quality_toolkit.exporter import (
+    export_report_csv,
+    export_report_excel,
+)
+from pathlib import Path
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -107,12 +111,27 @@ def main(argv: list[str] | None = None) -> int:
     print(format_validation_report(result))
 
     if args.output:
-        export_report_csv(
-            result=result,
-            output_path=args.output,
-        )
+        output_path = Path(args.output)
+        extension = output_path.suffix.lower()
 
-        print(f"Report saved to: {args.output}")
+        if extension == ".csv":
+            export_report_csv(
+                result=result,
+                output_path=output_path,
+            )
+
+        elif extension == ".xlsx":
+            export_report_excel(
+                result=result,
+                output_path=output_path,
+            )
+
+        else:
+            parser.error(
+                "Output file must use .csv or .xlsx extension."
+            )
+
+        print(f"Report saved to: {output_path}")
 
     return 0 if result.is_valid else 1
 
