@@ -58,3 +58,56 @@ def test_invalid_config_root_raises_error(tmp_path):
 
     with pytest.raises(ValueError, match="configuration must be a mapping"):
         load_validation_config(config_file)
+
+def test_config_rejects_non_list_required_columns(tmp_path):
+    config_file = tmp_path / "rules.yaml"
+
+    config_file.write_text(
+        """
+required_columns: name
+""",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="required_columns must be a list",
+    ):
+        load_validation_config(config_file)
+
+
+def test_config_rejects_non_mapping_allowed_values(tmp_path):
+    config_file = tmp_path / "rules.yaml"
+
+    config_file.write_text(
+        """
+allowed_values:
+  - full-time
+  - part-time
+""",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="allowed_values must be a mapping",
+    ):
+        load_validation_config(config_file)
+
+
+def test_config_rejects_invalid_allowed_value_list(tmp_path):
+    config_file = tmp_path / "rules.yaml"
+
+    config_file.write_text(
+        """
+allowed_values:
+  employment_type: full-time
+""",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="Allowed values for 'employment_type' must be a list",
+    ):
+        load_validation_config(config_file)
