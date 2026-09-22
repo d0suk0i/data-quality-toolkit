@@ -1,7 +1,7 @@
 import pandas as pd
 
-from src.data_quality_toolkit.exporter import export_report_csv
-from src.data_quality_toolkit.validator import ValidationResult
+from data_quality_toolkit.exporter import export_report_csv
+from data_quality_toolkit.validator import ValidationResult
 from openpyxl import load_workbook
 
 
@@ -54,7 +54,7 @@ def test_export_report_csv_handles_valid_result(tmp_path):
     ]
 
 def test_export_report_excel_creates_summary_and_issues_sheets(tmp_path):
-    from src.data_quality_toolkit.exporter import export_report_excel
+    from data_quality_toolkit.exporter import export_report_excel
 
     result = ValidationResult(
         missing_columns=["email"],
@@ -85,7 +85,7 @@ def test_export_report_excel_creates_summary_and_issues_sheets(tmp_path):
 
 
 def test_export_report_excel_handles_valid_result(tmp_path):
-    from src.data_quality_toolkit.exporter import export_report_excel
+    from data_quality_toolkit.exporter import export_report_excel
 
     result = ValidationResult()
 

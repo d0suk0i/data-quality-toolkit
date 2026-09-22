@@ -3,3 +3,10 @@ __pycache__/
 .pytest_cache/
 .idea/
 *.pyc
+build/
+dist/
+*.egg-info/
+
+validation_report.csv
+validation_report.xlsx
+reviewed_*.xlsx

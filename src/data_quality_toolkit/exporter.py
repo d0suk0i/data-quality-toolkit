@@ -2,10 +2,10 @@ from pathlib import Path
 
 import pandas as pd
 
-from src.data_quality_toolkit.validator import ValidationResult
+from data_quality_toolkit.validator import ValidationResult
 from openpyxl.styles import Font
 from openpyxl.utils import get_column_letter
-from src.data_quality_toolkit.utils import source_row_number
+from data_quality_toolkit.utils import source_row_number
 
 
 REPORT_COLUMNS = [

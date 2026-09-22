@@ -1,5 +1,5 @@
-from src.data_quality_toolkit.report import format_validation_report
-from src.data_quality_toolkit.validator import ValidationResult
+from data_quality_toolkit.report import format_validation_report
+from data_quality_toolkit.validator import ValidationResult
 
 
 def test_format_validation_report_for_valid_data():

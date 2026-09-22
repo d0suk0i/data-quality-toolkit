@@ -1,6 +1,6 @@
 import pandas as pd
 
-from src.data_quality_toolkit.validator import (
+from data_quality_toolkit.validator import (
     ValidationResult,
     find_duplicate_rows,
     find_invalid_values,

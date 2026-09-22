@@ -6,8 +6,8 @@ from openpyxl.comments import Comment
 from openpyxl.styles import Font, PatternFill
 from openpyxl.utils import get_column_letter
 
-from src.data_quality_toolkit.utils import source_row_number
-from src.data_quality_toolkit.validator import ValidationResult
+from data_quality_toolkit.utils import source_row_number
+from data_quality_toolkit.validator import ValidationResult
 
 
 # Professional, subdued workbook palette.

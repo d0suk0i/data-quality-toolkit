@@ -1,8 +1,18 @@
 import pandas as pd
 
-from src.data_quality_toolkit.cli import main
+from data_quality_toolkit.cli import main
 from openpyxl import Workbook, load_workbook
+import pytest
 
+
+def test_cli_version(capsys):
+    with pytest.raises(SystemExit) as exc_info:
+        main(["--version"])
+
+    output = capsys.readouterr().out
+
+    assert exc_info.value.code == 0
+    assert "Data Quality Toolkit 1.0.0" in output
 
 def test_cli_returns_success_for_valid_file(tmp_path, capsys):
     data = pd.DataFrame(

@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 
-from src.data_quality_toolkit.loader import load_data_file
+from data_quality_toolkit.loader import load_data_file
 
 
 def test_load_csv(tmp_path):

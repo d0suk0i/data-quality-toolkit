@@ -1,6 +1,6 @@
 import pytest
 
-from src.data_quality_toolkit.config import load_validation_config
+from data_quality_toolkit.config import load_validation_config
 
 
 def test_load_validation_config(tmp_path):

@@ -1,5 +1,5 @@
-from src.data_quality_toolkit.validator import ValidationResult
-from src.data_quality_toolkit.utils import source_row_number
+from data_quality_toolkit.validator import ValidationResult
+from data_quality_toolkit.utils import source_row_number
 
 
 def format_validation_report(result: ValidationResult) -> str:

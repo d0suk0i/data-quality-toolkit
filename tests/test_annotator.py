@@ -1,7 +1,7 @@
 from openpyxl import Workbook, load_workbook
 
-from src.data_quality_toolkit.annotator import annotate_workbook
-from src.data_quality_toolkit.validator import ValidationResult
+from data_quality_toolkit.annotator import annotate_workbook
+from data_quality_toolkit.validator import ValidationResult
 
 
 def test_annotate_workbook_highlights_validation_issues(tmp_path):

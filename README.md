@@ -28,7 +28,7 @@ Validation rules can be supplied through command-line arguments or reusable YAML
 Export validation issues to CSV:
 
 ```bash
-python -m src.data_quality_toolkit.cli samples/sample_jobs.csv \
+python -m data_quality_toolkit.cli samples/sample_jobs.csv \
   --config config/job_rules.yaml \
   --output validation_report.csv
 ```
@@ -36,7 +36,7 @@ python -m src.data_quality_toolkit.cli samples/sample_jobs.csv \
 Export a formatted Excel workbook:
 
 ```bash
-python -m src.data_quality_toolkit.cli samples/sample_jobs.csv \
+python -m data_quality_toolkit.cli samples/sample_jobs.csv \
   --config config/job_rules.yaml \
   --output validation_report.xlsx
 ```
@@ -99,13 +99,13 @@ pip install -r requirements-dev.txt
 Validate required columns:
 
 ```bash
-python -m src.data_quality_toolkit.cli data.csv --required id name email
+python -m data_quality_toolkit.cli data.csv --required id name email
 ```
 
 Check duplicates using an ID column:
 
 ```bash
-python -m src.data_quality_toolkit.cli data.csv --required id name --duplicate-key id
+python -m data_quality_toolkit.cli data.csv --required id name --duplicate-key id
 ```
 
 ## YAML Configuration
@@ -140,7 +140,7 @@ allowed_values:
 Run validation using the configuration:
 
 ```bash
-python -m src.data_quality_toolkit.cli samples/sample_jobs.csv --config config/job_rules.yaml
+python -m data_quality_toolkit.cli samples/sample_jobs.csv --config config/job_rules.yaml
 ```
 
 ## Example Output

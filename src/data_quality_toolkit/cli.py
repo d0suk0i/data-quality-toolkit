@@ -1,15 +1,16 @@
 import argparse
 
-from src.data_quality_toolkit.loader import load_data_file
-from src.data_quality_toolkit.report import format_validation_report
-from src.data_quality_toolkit.validator import validate_data
-from src.data_quality_toolkit.config import load_validation_config
-from src.data_quality_toolkit.exporter import (
+from data_quality_toolkit import __version__
+from data_quality_toolkit.loader import load_data_file
+from data_quality_toolkit.report import format_validation_report
+from data_quality_toolkit.validator import validate_data
+from data_quality_toolkit.config import load_validation_config
+from data_quality_toolkit.exporter import (
     export_report_csv,
     export_report_excel,
 )
 from pathlib import Path
-from src.data_quality_toolkit.annotator import annotate_workbook
+from data_quality_toolkit.annotator import annotate_workbook
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -56,11 +57,18 @@ def build_parser() -> argparse.ArgumentParser:
     )
 
     parser.add_argument(
+        "--version",
+        action="version",
+        version=f"Data Quality Toolkit {__version__}",
+    )
+
+    parser.add_argument(
         "--annotated-output",
         help=(
             "Optional path for creating an annotated copy "
             "of an XLSX input workbook."
         ),
+
     )
 
     return parser
