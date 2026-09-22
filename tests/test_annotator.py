@@ -91,3 +91,58 @@ def test_annotate_workbook_highlights_validation_issues(tmp_path):
 
     # Unexpected column header.
     assert reviewed_sheet["E1"].fill.fill_type == "solid"
+
+def test_annotated_workbook_includes_legend_sheet(tmp_path):
+    source_path = tmp_path / "source.xlsx"
+    output_path = tmp_path / "reviewed.xlsx"
+
+    workbook = Workbook()
+    sheet = workbook.active
+
+    sheet.append(
+        [
+            "id",
+            "name",
+            "email",
+            "employment_type",
+            "extra",
+        ]
+    )
+
+    sheet.append(
+        [
+            101,
+            "Alice",
+            None,
+            "temporary",
+            "A",
+        ]
+    )
+
+    workbook.save(source_path)
+
+    result = ValidationResult(
+        unexpected_columns=["extra"],
+        missing_values={"email": [0]},
+        invalid_values={"employment_type": [0]},
+    )
+
+    annotate_workbook(
+        input_path=source_path,
+        result=result,
+        output_path=output_path,
+    )
+
+    reviewed = load_workbook(output_path)
+
+    assert "Legend" in reviewed.sheetnames
+
+    legend = reviewed["Legend"]
+
+    assert legend["A1"].value == "Highlight"
+    assert legend["B1"].value == "Meaning"
+
+    assert legend["B2"].value == "Missing required value"
+    assert legend["B3"].value == "Invalid value"
+    assert legend["B4"].value == "Duplicate row"
+    assert legend["B5"].value == "Unexpected column"

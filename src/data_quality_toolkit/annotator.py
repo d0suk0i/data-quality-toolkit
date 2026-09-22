@@ -2,7 +2,7 @@ from pathlib import Path
 from shutil import copy2
 
 from openpyxl import load_workbook
-from openpyxl.styles import PatternFill
+from openpyxl.styles import Font, PatternFill
 
 from src.data_quality_toolkit.utils import source_row_number
 from src.data_quality_toolkit.validator import ValidationResult
@@ -121,4 +121,61 @@ def annotate_workbook(
                 column=column_number,
             ).fill = DUPLICATE_ROW_FILL
 
+    add_legend_sheet(workbook)
+
     workbook.save(destination)
+
+def add_legend_sheet(workbook) -> None:
+    """
+    Add a legend explaining the workbook highlight colors.
+    """
+    if "Legend" in workbook.sheetnames:
+        del workbook["Legend"]
+
+    legend = workbook.create_sheet("Legend")
+
+    legend.append(
+        [
+            "Highlight",
+            "Meaning",
+        ]
+    )
+
+    legend.append(
+        [
+            "",
+            "Missing required value",
+        ]
+    )
+
+    legend.append(
+        [
+            "",
+            "Invalid value",
+        ]
+    )
+
+    legend.append(
+        [
+            "",
+            "Duplicate row",
+        ]
+    )
+
+    legend.append(
+        [
+            "",
+            "Unexpected column",
+        ]
+    )
+
+    legend["A2"].fill = MISSING_VALUE_FILL
+    legend["A3"].fill = INVALID_VALUE_FILL
+    legend["A4"].fill = DUPLICATE_ROW_FILL
+    legend["A5"].fill = UNEXPECTED_COLUMN_FILL
+
+    legend["A1"].font = Font(bold=True)
+    legend["B1"].font = Font(bold=True)
+
+    legend.column_dimensions["A"].width = 14
+    legend.column_dimensions["B"].width = 28
