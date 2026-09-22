@@ -109,6 +109,7 @@ def annotate_workbook(
                 column=column_number,
             ).fill = INVALID_VALUE_FILL
 
+    # 1. Duplicate rows first
     for row_index in result.duplicate_rows:
         excel_row = source_row_number(row_index)
 
@@ -121,6 +122,7 @@ def annotate_workbook(
                 column=column_number,
             ).fill = DUPLICATE_ROW_FILL
 
+    # 2. Missing values second
     for column, rows in result.missing_values.items():
         column_number = header_columns.get(column)
 
@@ -133,6 +135,7 @@ def annotate_workbook(
                 column=column_number,
             ).fill = MISSING_VALUE_FILL
 
+    # 3. Invalid values last
     for column, rows in result.invalid_values.items():
         column_number = header_columns.get(column)
 
