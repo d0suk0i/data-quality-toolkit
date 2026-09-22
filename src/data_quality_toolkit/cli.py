@@ -61,80 +61,85 @@ def main(argv: list[str] | None = None) -> int:
     """
     Run the data quality validator from the command line.
 
-    Args:
-        argv: Optional list of command-line arguments.
-
     Returns:
         0 when validation passes.
         1 when validation fails.
+        2 when the command cannot complete because of an input
+        or configuration error.
     """
     parser = build_parser()
     args = parser.parse_args(argv)
 
-    data = load_data_file(args.file)
+    try:
+        data = load_data_file(args.file)
 
-    config = {}
+        config = {}
 
-    if args.config:
-        config = load_validation_config(args.config)
+        if args.config:
+            config = load_validation_config(args.config)
 
-    required_columns = config.get(
-        "required_columns",
-        args.required,
-    )
+        required_columns = config.get(
+            "required_columns",
+            args.required,
+        )
 
-    expected_columns = config.get(
-        "expected_columns",
-        args.expected,
-    )
+        expected_columns = config.get(
+            "expected_columns",
+            args.expected,
+        )
 
-    if expected_columns is None:
-        expected_columns = list(data.columns)
+        if expected_columns is None:
+            expected_columns = list(data.columns)
 
-    duplicate_subset = config.get(
-        "duplicate_subset",
-        args.duplicate_key,
-    )
+        duplicate_subset = config.get(
+            "duplicate_subset",
+            args.duplicate_key,
+        )
 
-    allowed_values = config.get(
-        "allowed_values",
-    )
+        allowed_values = config.get(
+            "allowed_values",
+        )
 
-    result = validate_data(
-        data=data,
-        expected_columns=expected_columns,
-        required_columns=required_columns,
-        allowed_values=allowed_values,
-        duplicate_subset=duplicate_subset,
-    )
+        result = validate_data(
+            data=data,
+            expected_columns=expected_columns,
+            required_columns=required_columns,
+            allowed_values=allowed_values,
+            duplicate_subset=duplicate_subset,
+        )
 
-    print(format_validation_report(result))
+        print(format_validation_report(result))
 
-    if args.output:
-        output_path = Path(args.output)
-        extension = output_path.suffix.lower()
+        if args.output:
+            output_path = Path(args.output)
+            extension = output_path.suffix.lower()
 
-        if extension == ".csv":
-            export_report_csv(
-                result=result,
-                output_path=output_path,
-            )
+            if extension == ".csv":
+                export_report_csv(
+                    result=result,
+                    output_path=output_path,
+                )
 
-        elif extension == ".xlsx":
-            export_report_excel(
-                result=result,
-                output_path=output_path,
-            )
+            elif extension == ".xlsx":
+                export_report_excel(
+                    result=result,
+                    output_path=output_path,
+                )
 
-        else:
-            parser.error(
-                "Output file must use .csv or .xlsx extension."
-            )
+            else:
+                print(
+                    "Error: Output file must use "
+                    ".csv or .xlsx extension."
+                )
+                return 2
 
-        print(f"Report saved to: {output_path}")
+            print(f"Report saved to: {output_path}")
 
-    return 0 if result.is_valid else 1
+        return 0 if result.is_valid else 1
 
+    except (FileNotFoundError, ValueError) as error:
+        print(f"Error: {error}")
+        return 2
 
 if __name__ == "__main__":
     raise SystemExit(main())

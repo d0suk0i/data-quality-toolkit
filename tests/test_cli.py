@@ -217,3 +217,74 @@ def test_cli_exports_excel_report(tmp_path):
     assert output_file.exists()
     assert "Summary" in workbook.sheetnames
     assert "Issues" in workbook.sheetnames
+
+def test_cli_handles_missing_input_file(tmp_path, capsys):
+    missing_file = tmp_path / "missing.csv"
+
+    exit_code = main([str(missing_file)])
+
+    output = capsys.readouterr().out
+
+    assert exit_code == 2
+    assert "Error:" in output
+    assert "File not found" in output
+
+
+def test_cli_handles_missing_config_file(tmp_path, capsys):
+    data = pd.DataFrame(
+        {
+            "name": ["Alice"],
+        }
+    )
+
+    data_file = tmp_path / "data.csv"
+    data.to_csv(data_file, index=False)
+
+    missing_config = tmp_path / "missing.yaml"
+
+    exit_code = main(
+        [
+            str(data_file),
+            "--config",
+            str(missing_config),
+        ]
+    )
+
+    output = capsys.readouterr().out
+
+    assert exit_code == 2
+    assert "Error:" in output
+    assert "Configuration file not found" in output
+
+
+def test_cli_handles_invalid_config(tmp_path, capsys):
+    data = pd.DataFrame(
+        {
+            "name": ["Alice"],
+        }
+    )
+
+    data_file = tmp_path / "data.csv"
+    data.to_csv(data_file, index=False)
+
+    config_file = tmp_path / "rules.yaml"
+    config_file.write_text(
+        """
+required_columns: name
+""",
+        encoding="utf-8",
+    )
+
+    exit_code = main(
+        [
+            str(data_file),
+            "--config",
+            str(config_file),
+        ]
+    )
+
+    output = capsys.readouterr().out
+
+    assert exit_code == 2
+    assert "Error:" in output
+    assert "required_columns must be a list" in output
