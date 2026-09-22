@@ -179,5 +179,6 @@ def main(argv: list[str] | None = None) -> int:
         print(f"Error: {error}")
         return 2
 
-    if __name__ == "__main__":
-        raise SystemExit(main())
+if __name__ == "__main__":
+    raise SystemExit(main())
+    raise SystemExit(main())

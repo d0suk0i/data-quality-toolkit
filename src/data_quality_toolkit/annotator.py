@@ -113,13 +113,37 @@ def annotate_workbook(
         excel_row = source_row_number(row_index)
 
         for column_number in range(
-            1,
-            worksheet.max_column + 1,
+                1,
+                worksheet.max_column + 1,
         ):
             worksheet.cell(
                 row=excel_row,
                 column=column_number,
             ).fill = DUPLICATE_ROW_FILL
+
+    for column, rows in result.missing_values.items():
+        column_number = header_columns.get(column)
+
+        if column_number is None:
+            continue
+
+        for row_index in rows:
+            worksheet.cell(
+                row=source_row_number(row_index),
+                column=column_number,
+            ).fill = MISSING_VALUE_FILL
+
+    for column, rows in result.invalid_values.items():
+        column_number = header_columns.get(column)
+
+        if column_number is None:
+            continue
+
+        for row_index in rows:
+            worksheet.cell(
+                row=source_row_number(row_index),
+                column=column_number,
+            ).fill = INVALID_VALUE_FILL
 
     add_legend_sheet(workbook)
 

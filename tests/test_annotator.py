@@ -146,3 +146,56 @@ def test_annotated_workbook_includes_legend_sheet(tmp_path):
     assert legend["B3"].value == "Invalid value"
     assert legend["B4"].value == "Duplicate row"
     assert legend["B5"].value == "Unexpected column"
+
+def test_specific_cell_issue_overrides_duplicate_row_fill(tmp_path):
+    source_path = tmp_path / "source.xlsx"
+    output_path = tmp_path / "reviewed.xlsx"
+
+    workbook = Workbook()
+    sheet = workbook.active
+
+    sheet.append(
+        [
+            "id",
+            "employment_type",
+        ]
+    )
+
+    sheet.append(
+        [
+            101,
+            "full-time",
+        ]
+    )
+
+    sheet.append(
+        [
+            101,
+            "temporary",
+        ]
+    )
+
+    workbook.save(source_path)
+
+    result = ValidationResult(
+        duplicate_rows=[1],
+        invalid_values={
+            "employment_type": [1],
+        },
+    )
+
+    annotate_workbook(
+        input_path=source_path,
+        result=result,
+        output_path=output_path,
+    )
+
+    reviewed = load_workbook(output_path)
+    sheet = reviewed.active
+
+    duplicate_fill = sheet["A3"].fill.fgColor.rgb
+    invalid_fill = sheet["B3"].fill.fgColor.rgb
+
+    assert duplicate_fill != invalid_fill
+    assert sheet["A3"].fill.fill_type == "solid"
+    assert sheet["B3"].fill.fill_type == "solid"
